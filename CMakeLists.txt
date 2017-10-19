@@ -5,13 +5,19 @@ endif(COMMAND cmake_policy)
 
 project(CNPY)
 
+include(FindPkgConfig)
+PKG_CHECK_MODULES(LIBZIP REQUIRED libzip)
+
+include_directories(${LIBZIP_INCLUDE_DIRS})
+link_directories(${LIBZIP_LIBRARY_DIRS})
+
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
 option(ENABLE_STATIC "Build static (.a) library" ON)
 option(ENABLE_BINARIES "Install binaries, e.g. mat2npz" ON)
 
 add_library(cnpy SHARED "cnpy.cpp")
-target_link_libraries(cnpy z zip)
+target_link_libraries(cnpy ${LIBZIP_LIBRARIES})
 install(TARGETS "cnpy" LIBRARY DESTINATION lib PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
 
 if(ENABLE_STATIC)

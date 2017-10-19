@@ -86,7 +86,7 @@ void cnpy::parse_npy_header(char* buffer,size_t& word_size, std::vector<size_t>&
     }
 
     //endian, word size, data type
-    //byte order code | stands for not applicable. 
+    //byte order code | stands for not applicable.
     //not sure when this applies except for byte array
     loc1 = header.find("descr")+9;
     bool littleEndian = (header[loc1] == '<' || header[loc1] == '|' ? true : false);
@@ -100,9 +100,9 @@ void cnpy::parse_npy_header(char* buffer,size_t& word_size, std::vector<size_t>&
     word_size = atoi(str_ws.substr(0,loc2).c_str());
 }
 
-void cnpy::parse_npy_header(FILE* fp, size_t& word_size, std::vector<size_t>& shape, bool& fortran_order) {  
+void cnpy::parse_npy_header(FILE* fp, size_t& word_size, std::vector<size_t>& shape, bool& fortran_order) {
     char buffer[256];
-    size_t res = fread(buffer,sizeof(char),11,fp);       
+    size_t res = fread(buffer,sizeof(char),11,fp);
     if(res != 11)
         throw std::runtime_error("parse_npy_header: failed fread");
     std::string header = fgets(buffer,256,fp);
@@ -129,7 +129,7 @@ void cnpy::parse_npy_header(FILE* fp, size_t& word_size, std::vector<size_t>& sh
     }
 
     //endian, word size, data type
-    //byte order code | stands for not applicable. 
+    //byte order code | stands for not applicable.
     //not sure when this applies except for byte array
     loc1 = header.find("descr")+9;
     bool littleEndian = (header[loc1] == '<' || header[loc1] == '|' ? true : false);
@@ -185,7 +185,7 @@ cnpy::NpyArray load_the_npz_array(zip* z, char* buffer, std::string name, size_t
     zip_file *f = zip_fopen(z,name.c_str(),0);
     zip_fread(f,buffer,num_bytes);
     zip_fclose(f);
-        
+
     std::vector<size_t> shape;
     size_t word_size;
     bool fortran_order;
@@ -201,14 +201,14 @@ cnpy::NpyArray load_the_npz_array(zip* z, char* buffer, std::string name, size_t
 
 cnpy::npz_t cnpy::npz_load(std::string fname) {
 
-    cnpy::npz_t arrays;  
+    cnpy::npz_t arrays;
 
     int err = 0;
     zip* z = zip_open(fname.c_str(), 0, &err);
 
     if(!z)
         throw std::runtime_error("npz_load: failed to open file: "+fname);
-    
+
     int64_t n_entries = zip_get_num_entries(z,0);
     size_t max_arr_size = 0;
     for(int64_t n = 0;n < n_entries;n++)
@@ -216,7 +216,7 @@ cnpy::npz_t cnpy::npz_load(std::string fname) {
         struct zip_stat st;
         zip_stat_init(&st);
         zip_stat_index(z,n,0,&st);
-        max_arr_size = std::max(max_arr_size,st.size);
+        max_arr_size = std::max(max_arr_size,(size_t) st.size);
     }
 
     char* contents = new char[max_arr_size];
@@ -226,7 +226,7 @@ cnpy::npz_t cnpy::npz_load(std::string fname) {
         struct zip_stat st;
         zip_stat_init(&st);
         zip_stat_index(z,n,0,&st);
-       
+
         std::string varname = st.name;
         size_t last = varname.find_last_of(".");
         varname = varname.substr(0,last);
@@ -237,7 +237,7 @@ cnpy::npz_t cnpy::npz_load(std::string fname) {
     zip_close(z);
     delete[] contents;
 
-    return arrays;  
+    return arrays;
 }
 
 cnpy::NpyArray cnpy::npz_load(std::string fname, std::string varname) {
@@ -246,7 +246,7 @@ cnpy::NpyArray cnpy::npz_load(std::string fname, std::string varname) {
 
     int err = 0;
     zip* z = zip_open(fname.c_str(), 0, &err);
-    
+
     if(!z)
         throw std::runtime_error("npz_load: failed to open file: "+fname);
 
@@ -272,7 +272,7 @@ cnpy::NpyArray cnpy::npy_load(std::string fname) {
 
     if(!fp) {
         printf("npy_load: Error! Unable to open file %s!\n",fname.c_str());
-        abort();  
+        abort();
     }
 
     NpyArray arr = load_the_npy_file(fp);
